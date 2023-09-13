@@ -1,0 +1,216 @@
+import registroAbatidos.*
+
+describe "tests de registro de abatidos" {
+
+	test "permite agregar un nuevo registro" {
+		registroAbatidosCOD.agregarAbatidosDia(100, 20230901)
+		registroAbatidosCOD.agregarAbatidosDia(100, 20230902)
+		assert.equals(2, registroAbatidosCOD.cantidadDeDiasRegistrados())
+	}
+	
+	test "falla si se intentan agregar dos registros con la misma fecha" {
+		registroAbatidosCOD.agregarAbatidosDia(100, 20230901)
+		assert.throwsException({
+			registroAbatidosCOD.agregarAbatidosDia(80, 20230901)
+		})
+	}
+	
+	test "permite agregar múltiples registros a la vez" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([[20230901, 100], [20230902, 101]])
+		assert.equals(2, registroAbatidosCOD.cantidadDeDiasRegistrados())
+	}
+
+	test "falla si al agregar múltiples registros, uno está repetido" {
+		registroAbatidosCOD.agregarAbatidosDia(321, 20230901)
+		assert.throwsException({
+			registroAbatidosCOD.agregarAbatidosVariosDias([[20230901, 100], [20230902, 101]])
+		})
+	}
+
+	test "permite eliminar el registro de un día" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 100], 
+			[20230902, 101],
+			[20230903, 101]
+		])
+		assert.that(registroAbatidosCOD.tieneRegistroDelDia(20230902))
+		registroAbatidosCOD.eliminarElRegistroDelDia(20230902)
+		assert.notThat(registroAbatidosCOD.tieneRegistroDelDia(20230902))
+	}
+	
+	test "permite eliminar multiples registros" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 100], 
+			[20230902, 101],
+			[20230903, 101]
+		])
+		assert.that(registroAbatidosCOD.tieneRegistroDelDia(20230902))
+		assert.that(registroAbatidosCOD.tieneRegistroDelDia(20230901))
+		registroAbatidosCOD.eliminarLosRegistrosDeDias([20230902, 20230901])
+		assert.notThat(registroAbatidosCOD.tieneRegistroDelDia(20230901))
+		assert.notThat(registroAbatidosCOD.tieneRegistroDelDia(20230902))
+	}
+	
+	test "inicialmente el registro está vacío" {
+		assert.that(registroAbatidosCOD.estaVacioElRegistro())
+	}
+	
+	test "permite determinar si algún día se abatieron una cierta cantidad" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 100], 
+			[20230902, 101],
+			[20230903, 103]
+		])
+		assert.that(registroAbatidosCOD.algunDiaAbatio(101))
+		assert.notThat(registroAbatidosCOD.algunDiaAbatio(99))
+	}
+	
+	test "permite determinar el primer valor de abatidos del registro" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 105],
+			[20230902, 103],
+			[20230903, 101]
+		])
+		assert.equals(105, registroAbatidosCOD.primerValorDeAbatidos())
+	}
+
+	test "permite determinar el último valor de abatidos del registro" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 105],
+			[20230902, 103],
+			[20230903, 101]
+		])
+		assert.equals(101, registroAbatidosCOD.ultimoValorDeAbatidos())
+	}
+	
+	test "permite determinar el valor mas alto de abatidos" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 101],
+			[20230903, 103],
+			[20230901, 100] 
+		])
+		assert.equals(103, registroAbatidosCOD.maximoValorDeAbatidos())
+	}
+	
+	test "permite determinar la cantidad total de abatidos" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 101],
+			[20230903, 103],
+			[20230901, 100] 
+		])
+		assert.equals(304, registroAbatidosCOD.totalAbatidos())
+	}
+
+	test "permite determinar la cantidad de abatidos de un día" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 101],
+			[20230903, 103],
+			[20230901, 100] 
+		])
+		assert.equals(103, registroAbatidosCOD.cantidadDeAbatidosElDia(20230903))
+	}
+
+	test "ultimoValorDeAbatidos() = ultimoValorDeAbatidosConSize()" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 101],
+			[20230903, 103],
+			[20230901, 100] 
+		])
+		assert.equals(registroAbatidosCOD.ultimoValorDeAbatidos(), registroAbatidosCOD.ultimoValorDeAbatidosConSize())
+	}
+	
+	test "permite obtener la lista de los dias que abatió un valor superior al indicado" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 105],
+			[20230903, 110],
+			[20230901, 100] 
+		])
+		const resultado = registroAbatidosCOD.diasConAbatidosSuperioresA(100)
+		
+		assert.that(resultado.contains(20230903))
+		assert.that(resultado.contains(20230902))
+		assert.notThat(resultado.contains(20230901))
+	}
+	
+	test "permite obtener los valores de abatidos del registro que son valores pares" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 105],
+			[20230903, 110],
+			[20230901, 100] 
+		])
+		const resultado = registroAbatidosCOD.valoresDeAbatidosPares()
+		
+		assert.that(resultado.contains(100))
+		assert.that(resultado.contains(110))
+		assert.notThat(resultado.contains(105))
+	}
+	
+	test "devuelve la lista de valores que resulta de sumar el valor indicado en 'cantidad' a cada valor de abatidos del registro" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 105],
+			[20230903, 110],
+			[20230901, 100] 
+		])
+		const resultado = registroAbatidosCOD.abatidosSumando(20)
+		
+		assert.that(resultado.contains(120))
+		assert.that(resultado.contains(125))
+		assert.that(resultado.contains(130))
+	}
+	
+	test "permite determinar si en el registro, la cantidad de abatidos se encuentra entre los valores indicados " {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 105],
+			[20230903, 110],
+			[20230901, 100] 
+		])
+		
+		assert.that(registroAbatidosCOD.abatidosEsAcotada(100, 110))
+		registroAbatidosCOD.agregarAbatidosDia(130, 20230904)
+		assert.notThat(registroAbatidosCOD.abatidosEsAcotada(100, 110))
+	}
+
+	test "permite indicar si algún día de que se tiene registro, la cantidad de abatidos es mayor al valor indicado" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 105],
+			[20230903, 110],
+			[20230901, 100] 
+		])
+		
+		assert.that(registroAbatidosCOD.algunDiaAbatioMasDe(105))
+		assert.notThat(registroAbatidosCOD.algunDiaAbatioMasDe(110))
+	}
+
+	test "permite indicar si todos los días de que se tiene registro, la cantidad de abatidos es mayor al valor indicado" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230902, 105],
+			[20230903, 110],
+			[20230901, 100] 
+		])
+		
+		assert.that(registroAbatidosCOD.todosLosDiasAbatioMasDe(99))
+		assert.notThat(registroAbatidosCOD.todosLosDiasAbatioMasDe(100))
+	}
+	
+	
+	test "permite saber la cantidad de dias que se supero el valor del primer dia" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 105], 
+			[20230902, 110],
+			[20230903, 101]
+		])
+		
+		assert.equals(1, registroAbatidosCOD.cantidadAbatidosMayorALaPrimera())
+	}
+
+//	test "permite indicar si es crack" {
+//		registroAbatidosCOD.agregarAbatidosVariosDias([
+//			[20230901, 100], 
+//			[20230902, 105],
+//			[20230903, 110]
+//		])
+//		
+//		assert.that(registroAbatidosCOD.esCrack())
+//	}
+	
+}
