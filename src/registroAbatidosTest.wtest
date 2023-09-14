@@ -203,14 +203,26 @@ describe "tests de registro de abatidos" {
 		assert.equals(1, registroAbatidosCOD.cantidadAbatidosMayorALaPrimera())
 	}
 
-//	test "permite indicar si es crack" {
-//		registroAbatidosCOD.agregarAbatidosVariosDias([
-//			[20230901, 100], 
-//			[20230902, 105],
-//			[20230903, 110]
-//		])
-//		
-//		assert.that(registroAbatidosCOD.esCrack())
-//	}
+	test "al principio no es crack" {
+		assert.notThat(registroAbatidosCOD.esCrack())
+	}
+	
+	test "es crack si el valor de abatidos siempre fue aumentando dia a dia" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 100], 
+			[20230902, 105],
+			[20230903, 110]
+		])
+		assert.that(registroAbatidosCOD.esCrack())
+	}
+	
+	test "No es crack si el valor de abatidos siempre no fue aumentando dia a dia" {
+		registroAbatidosCOD.agregarAbatidosVariosDias([
+			[20230901, 100], 
+			[20230902, 105],
+			[20230903, 103]
+		])
+		assert.notThat(registroAbatidosCOD.esCrack())
+	}
 	
 }
