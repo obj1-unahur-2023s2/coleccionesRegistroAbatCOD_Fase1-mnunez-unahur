@@ -15,7 +15,7 @@ object registroAbatidosCOD {
 	// parametros:
 	//	lista: es una lista con el formato [[fecha, cantidad], [fecha, cantidad], ...]
 	method agregarAbatidosVariosDias(lista) {
-		lista.sortBy({ x, y => x.get(indiceFecha) < y.get(indiceFecha) })
+		lista.sortBy({ a, b => a.get(indiceFecha) < b.get(indiceFecha) })
 		lista.forEach({ r => self.agregarAbatidosDia(r.get(indiceAbatidos), r.get(indiceFecha))})
 	}
 	
